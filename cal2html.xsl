@@ -26,6 +26,19 @@
   </xsl:variable>
   <xsl:key name="monthByNumber" match="month" use="string(@key)"/>
 
+  <xsl:variable name="days">
+    <days>
+      <day key="0" name="So" />
+      <day key="1" name="Mo" />
+      <day key="2" name="Di" />
+      <day key="3" name="Mi" />
+      <day key="4" name="Do" />
+      <day key="5" name="Fr" />
+      <day key="6" name="Sa" />
+    </days>
+  </xsl:variable>
+  <xsl:key name="dayByNumber" match="day" use="string(@key)"/>
+
   <xsl:variable name="fonts">
     <fonts>
       <font key="FranklinGothic" css="Franklin Gothic Medium,Franklin Gothic,ITC Franklin Gothic,Arial,sans-serif"/>
@@ -33,6 +46,13 @@
   </xsl:variable>
   <xsl:key name="fontCSSByCode" match="font" use="string(@key)"/>
 
+  <xsl:variable name="colors">
+    <colors>
+      <color key="Brown range of colors" pri="#fcf3e9" sec="#f6ddbe" ter="#cba65f"/>
+    </colors>
+  </xsl:variable>
+  <xsl:key name="colorsByCode" match="color" use="string(@key)"/>
+  
   <xsl:variable name="pageWidth" select="number(*/page[@pagenr='0']/bundlesize/@width) div 10"/>
   <xsl:variable name="pageHeight" select="number(*/page[@pagenr='0']/bundlesize/@height) div 10"/>
   <xsl:variable name="imageDir" select="fotobook/@imagedir"/>
@@ -58,7 +78,7 @@
 	<xsl:when test="$m=12">4</xsl:when>
       </xsl:choose>
     </xsl:variable>
-    <xsl:value-of select="($ry + $ry div 4 - $ry div 100 + $ry div 400 + $t + $d) mod 7"/>
+    <xsl:value-of select="($ry + floor($ry div 4) - floor($ry div 100) + floor($ry div 400) + $t + $d) mod 7"/>
   </xsl:function>
   
   <xsl:template match="/fotobook">
@@ -98,7 +118,7 @@
 	    position:absolute;
 	    display:block;
 	  }
-	  span.cal {
+	  span.cal-onerow {
 	    position:absolute;
 	    top:30%;
 	    width:100%;
@@ -107,6 +127,14 @@
 	    border:1px solid black;
 	    text-align:center;
 	    height: 3em;
+	  }
+	  span.cal-per-row {
+	    position:absolute;
+	    width:100%;
+	    height:100%;
+	  }
+	  td.daybox-per-row {
+	    text-align:right;
 	  }
 	</style>
 	<script>
@@ -223,10 +251,10 @@ window.onload = function() {
   
   <xsl:template match="calendararea[@layoutschema='OneRow (gerry_03)']">
     <xsl:variable name="month" select="../../@pagenr"/>
-    <xsl:variable name="days" select="key('monthByNumber', string($month), $months)"/>
-    <xsl:variable name="dayWidth" select="100 div number($days)"/>
+    <xsl:variable name="numDays" select="key('monthByNumber', string($month), $months)"/>
+    <xsl:variable name="dayWidth" select="100 div number($numDays)"/>
     <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
-    <span class="cal">
+    <span class="cal-onerow">
       <xsl:element name="div">
 	<xsl:attribute name="class">mName</xsl:attribute>
 	<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:36pt; font-weight:bold;</xsl:attribute>
@@ -235,18 +263,80 @@ window.onload = function() {
       <br />
       <table width="100%">
 	<tr>
-	  <xsl:for-each select="1 to $days">
+	  <xsl:for-each select="1 to $numDays">
 	    <xsl:element name="td">
 	      <xsl:attribute name="class">daybox</xsl:attribute>
 	      <xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18;
 	      <xsl:variable name="dow" select="x:dayOfWeek($year, $month, position())"/>
-	      <xsl:if test="$dow &lt; 1 or $dow &gt; 6">font-weight: bold;</xsl:if>
+	      <xsl:if test="$dow=0 or $dow=6">font-weight: bold;</xsl:if>
 	      </xsl:attribute>
 	      <xsl:attribute name="width"><xsl:value-of select="$dayWidth"/>%</xsl:attribute>
 	      <xsl:value-of select="position()"/>
 	    </xsl:element>
 	  </xsl:for-each>
 	</tr>
+      </table>
+    </span>
+  </xsl:template>
+  
+  <xsl:template match="calendararea[@layoutschema='Month']">
+    <xsl:variable name="month" select="../../@pagenr"/>
+    <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
+    <xsl:variable name="colTer" select="key('colorsByCode', string(@colorschema), $colors)/@ter"/>
+    <span class="cal-month">
+      <xsl:element name="div">
+	<xsl:attribute name="class">mName</xsl:attribute>
+	<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:36pt; font-weight:bold; color:<xsl:value-of select="$colTer"/>;</xsl:attribute>
+	<xsl:value-of select="key('monthByNumber', string($month), $months)/@name"/>
+      </xsl:element>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="calendararea[@layoutschema='OneDayPerRow (1)']">
+    <xsl:variable name="month" select="../../@pagenr"/>
+    <xsl:variable name="numDays" select="key('monthByNumber', string($month), $months)"/>
+    <xsl:variable name="dayHeight" select="100 div number($numDays)"/>
+    <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
+    <xsl:variable name="colPri" select="key('colorsByCode', string(@colorschema), $colors)/@pri"/>
+    <xsl:variable name="colSec" select="key('colorsByCode', string(@colorschema), $colors)/@sec"/>
+    <xsl:variable name="colTer" select="key('colorsByCode', string(@colorschema), $colors)/@ter"/>
+    <span class="cal-per-row">
+      <table width="100%" height="100%" style="border:0; border-spacing:0;">
+	<xsl:for-each select="1 to $numDays">
+	  <xsl:variable name="dow" select="x:dayOfWeek($year, $month, position())"/>
+	  <tr>
+	    <xsl:element name="td">
+	      <xsl:attribute name="class">daybox-per-row</xsl:attribute>
+	      <xsl:attribute name="width">15%</xsl:attribute>
+	      <xsl:attribute name="height"><xsl:value-of select="$dayHeight"/>%</xsl:attribute>
+	      <xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18;
+	      <xsl:if test="$dow=0">font-weight: bold;</xsl:if>
+	      <xsl:if test="$dow=0 or $dow=6">background: <xsl:value-of select="$colSec"/>; </xsl:if>
+	      <xsl:if test="not($dow=0 or $dow=6)">background: <xsl:value-of select="$colPri"/>; </xsl:if>
+	      </xsl:attribute>
+	      <xsl:value-of select="position()"/>
+	    </xsl:element>
+	    <xsl:element name="td">
+	      <xsl:attribute name="class">daynamebox-per-row</xsl:attribute>
+	      <xsl:attribute name="width">15%</xsl:attribute>
+	      <xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size 18; color:white; 
+	      <xsl:if test="$dow=0">font-weight: bold;</xsl:if>
+	      <xsl:if test="$dow=0 or $dow=6">background: <xsl:value-of select="$colTer"/>; </xsl:if>
+	      <xsl:if test="not($dow=0 or $dow=6)">background: <xsl:value-of select="$colSec"/>; </xsl:if>
+	      </xsl:attribute>
+	      <xsl:value-of select="key('dayByNumber', string($dow), $days)/@name"/>
+	    </xsl:element>
+	    <xsl:element name="td">
+	      <xsl:attribute name="class">blankbox-per-row</xsl:attribute>
+	      <xsl:attribute name="width">70%</xsl:attribute>
+	      <xsl:attribute name="style">padding:0;
+	      <xsl:if test="$dow=0 or $dow=6">background: <xsl:value-of select="$colSec"/>; </xsl:if>
+	      <xsl:if test="not($dow=0 or $dow=6)">background: <xsl:value-of select="$colPri"/>; </xsl:if>
+	      </xsl:attribute>
+	      <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+	    </xsl:element>
+	  </tr>
+	</xsl:for-each>
       </table>
     </span>
   </xsl:template>
