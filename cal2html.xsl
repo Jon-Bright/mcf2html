@@ -96,31 +96,41 @@
 	</style>
 	<script>
 	  <xsl:text disable-output-escaping="yes">
-function putImage(fn, dst, divw, divh, top, left, areaw, areah, scale) {
-  const img = new Image();
-  img.src = fn;
+function putImage(n) {
+  let img = new Image();
+  img.src = n.fn;
   img.onload = () => {
-    iw = img.naturalWidth;
-    ih = img.naturalHeight;
-    if (top &lt; 0) {
-      top = -top;
+    let iw = img.naturalWidth;
+    let ih = img.naturalHeight;
+    if (n.top &lt; 0) {
+      n.top = -n.top;
     }
-    if (left &lt; 0) {
-      left = -left;
+    if (n.left &lt; 0) {
+      n.left = -n.left;
     }
-    const c = document.createElement('canvas');
-    c.width = divw;
-    c.height = divh;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(img, left, top, areaw/scale, areah/scale, 0, 0, divw, divh);
-    dst.src = c.toDataURL('image/jpeg');
+    let c = document.createElement('canvas');
+    c.width = n.divw;
+    c.height = n.divh;
+    let ctx = c.getContext('2d');
+    ctx.drawImage(img, n.left, n.top, n.areaw/n.scale, n.areah/n.scale, 0, 0, n.divw, n.divh);
+    n.dst.src = c.toDataURL('image/jpeg');
+    if (imgQueue.length > 0) {
+      putImage(imgQueue.shift());
+    }
   };
+}
+
+var imgQueue = [];
+window.onload = function() {
+  for (var i=0; i!=5; i++) {
+    putImage(imgQueue.shift());
+  }
 }
 	  </xsl:text>
 	</script>
       </head>
       <body>
-	<xsl:apply-templates select="page[8]" />
+	<xsl:apply-templates select="page[position()]" />
       </body>
     </html>
   </xsl:template>
@@ -158,7 +168,17 @@ function putImage(fn, dst, divw, divh, top, left, areaw, areah, scale) {
     </xsl:element>
     <script>
       i = document.getElementById('<xsl:value-of select="$id"/>');
-      putImage("<xsl:value-of select="concat($imageDir,'/',@filename)"/>", i, i.parentNode.offsetWidth, i.parentNode.offsetHeight, <xsl:value-of select="@top"/>, <xsl:value-of select="@left"/>, <xsl:value-of select="../@width"/>, <xsl:value-of select="../@height"/>, <xsl:value-of select="@scale"/>);
+      imgQueue.push({
+        fn: "<xsl:value-of select="concat($imageDir,'/',@filename)"/>",
+	dst: i,
+	divw: i.parentNode.offsetWidth,
+	divh: i.parentNode.offsetHeight,
+	top: <xsl:value-of select="@top"/>,
+	left: <xsl:value-of select="@left"/>,
+	areaw: <xsl:value-of select="../@width"/>,
+	areah: <xsl:value-of select="../@height"/>,
+	scale: <xsl:value-of select="@scale"/>
+      });
     </script>
   </xsl:template>
 
