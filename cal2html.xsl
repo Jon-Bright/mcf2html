@@ -116,10 +116,10 @@ function putImage(n) {
       n.left = -n.left;
     }
     let c = document.createElement('canvas');
-    c.width = n.divw;
-    c.height = n.divh;
+    c.width = n.divw*2;
+    c.height = n.divh*2;
     let ctx = c.getContext('2d');
-    ctx.drawImage(img, n.left, n.top, n.areaw/n.scale, n.areah/n.scale, 0, 0, n.divw, n.divh);
+    ctx.drawImage(img, n.left, n.top, n.areaw/n.scale, n.areah/n.scale, 0, 0, n.divw*2, n.divh*2);
     n.dst.src = c.toDataURL('image/jpeg');
     if (imgQueue.length > 0) {
       putImage(imgQueue.shift());
