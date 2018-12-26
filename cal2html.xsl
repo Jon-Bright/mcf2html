@@ -94,9 +94,33 @@
 	    height: 2em;
 	  }
 	</style>
+	<script>
+	  <xsl:text disable-output-escaping="yes">
+function putImage(fn, dst, divw, divh, top, left, areaw, areah, scale) {
+  const img = new Image();
+  img.src = fn;
+  img.onload = () => {
+    iw = img.naturalWidth;
+    ih = img.naturalHeight;
+    if (top &lt; 0) {
+      top = -top;
+    }
+    if (left &lt; 0) {
+      left = -left;
+    }
+    const c = document.createElement('canvas');
+    c.width = divw;
+    c.height = divh;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, left, top, areaw/scale, areah/scale, 0, 0, divw, divh);
+    dst.src = c.toDataURL('image/jpeg');
+  };
+}
+	  </xsl:text>
+	</script>
       </head>
       <body>
-	<xsl:apply-templates select="page[position() &lt; 3]" />
+	<xsl:apply-templates select="page[8]" />
       </body>
     </html>
   </xsl:template>
@@ -125,15 +149,17 @@
   </xsl:template>
 
   <xsl:template match="image">
+    <xsl:variable name="id" select="generate-id(.)"/>
     <xsl:element name="img">
-      <!--
-	  <xsl:attribute name="src" ><xsl:value-of select="concat($imageDir,'/','cal2019-20180630-0D5A7715.jpeg')"/></xsl:attribute>
-      -->
-      <xsl:attribute name="src" ><xsl:value-of select="concat($imageDir,'/',@filename)"/></xsl:attribute>
-      <xsl:attribute name="title"><xsl:value-of select="concat(@filename,'')"/></xsl:attribute>
+      <xsl:attribute name="id"><xsl:value-of select="$id"/></xsl:attribute>
+      <xsl:attribute name="title"><xsl:value-of select="@filename"/></xsl:attribute>
       <xsl:attribute name="width">100%</xsl:attribute>
       <xsl:attribute name="height">100%</xsl:attribute>
-    </xsl:element>    
+    </xsl:element>
+    <script>
+      i = document.getElementById('<xsl:value-of select="$id"/>');
+      putImage("<xsl:value-of select="concat($imageDir,'/',@filename)"/>", i, i.parentNode.offsetWidth, i.parentNode.offsetHeight, <xsl:value-of select="@top"/>, <xsl:value-of select="@left"/>, <xsl:value-of select="../@width"/>, <xsl:value-of select="../@height"/>, <xsl:value-of select="@scale"/>);
+    </script>
   </xsl:template>
 
   <xsl:template match="calendararea[@layoutschema='Year (Long-Name-Big)']">
