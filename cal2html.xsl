@@ -67,7 +67,15 @@
 	<title>Calendar</title>
 	<style>
 	  @page {
-	    size: <xsl:value-of select="$pageWidth"/>mm <xsl:value-of select="$pageHeight"/>mm
+	  }
+          @media print {
+            @page {
+              margin: 0;
+	      size: <xsl:value-of select="$pageWidth"/>mm <xsl:value-of select="$pageHeight"/>mm;
+	    }
+	    body {
+	      margin: 1.6cm;
+	    }
 	  }
 	  div.page {
 	    position:relative;
@@ -123,13 +131,21 @@ function putImage(n) {
     n.dst.src = c.toDataURL('image/jpeg');
     if (imgQueue.length > 0) {
       putImage(imgQueue.shift());
+    } else {
+      inFlight--;
+      if (inFlight==0) {
+        n.dst.onload= () => {
+          window.print();
+        }
+      }
     }
   };
 }
 
 var imgQueue = [];
+var inFlight = 5;
 window.onload = function() {
-  for (var i=0; i!=5; i++) {
+  for (var i=0; i!=inFlight; i++) {
     putImage(imgQueue.shift());
   }
 }
