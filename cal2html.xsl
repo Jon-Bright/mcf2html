@@ -6,6 +6,10 @@
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
+  <xsl:variable name="rounding" select="50"/>
+  <!-- I use a 5mm grid and want all my photos snapped to it. Based on the value here, the XSL
+       will output warning messages for photos where that's not the case. -->
+
   <xsl:variable name="year" select="number(substring(fotobook/@startdatecalendarium,7))"/>
   <xsl:variable name="daysInFeb" select="if (($year mod 4 = 0 and $year mod 100 !=0) or $year mod 400 = 0) then 29 else 28"/>
   <xsl:variable name="months">
@@ -203,11 +207,12 @@ window.onload = function() {
       <xsl:if test="calendararea">
 	<xsl:attribute name="class">cal</xsl:attribute>
       </xsl:if>
+      <xsl:variable name="pos" select="position|."/>
       <xsl:attribute name="style">
-	<xsl:text>left: </xsl:text><xsl:value-of select="((@left div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>top: </xsl:text><xsl:value-of select="((@top div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>width: </xsl:text><xsl:value-of select="((@width div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>height: </xsl:text><xsl:value-of select="((@height div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>left: </xsl:text><xsl:value-of select="(($pos/@left div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>top: </xsl:text><xsl:value-of select="(($pos/@top div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>width: </xsl:text><xsl:value-of select="(($pos/@width div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>height: </xsl:text><xsl:value-of select="(($pos/@height div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
       </xsl:attribute>
       <xsl:apply-templates select="image"/>
       <xsl:apply-templates select="calendararea"/>
@@ -216,24 +221,76 @@ window.onload = function() {
 
   <xsl:template match="image">
     <xsl:variable name="id" select="generate-id(.)"/>
+    <xsl:variable name="fn" select="replace(@filename,'safecontainer:/','')"/>
     <xsl:element name="img">
       <xsl:attribute name="id"><xsl:value-of select="$id"/></xsl:attribute>
-      <xsl:attribute name="title"><xsl:value-of select="@filename"/></xsl:attribute>
+      <xsl:attribute name="title"><xsl:value-of select="$fn"/></xsl:attribute>
       <xsl:attribute name="width">100%</xsl:attribute>
       <xsl:attribute name="height">100%</xsl:attribute>
     </xsl:element>
+    <xsl:variable name="ppos" select="../position|.."/>
+    <xsl:variable name="cutoutTop">
+      <xsl:choose>
+	<xsl:when test="cutout">
+	  <xsl:value-of select="cutout/@top div cutout/@scale"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="./@top"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="cutoutLeft">
+      <xsl:choose>
+	<xsl:when test="cutout">
+	  <xsl:value-of select="cutout/@left div cutout/@scale"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="./@left"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="scale">
+      <xsl:choose>
+	<xsl:when test="cutout">
+	  <xsl:value-of select="cutout/@scale"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="./@scale"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:if test="($ppos/@left mod ($rounding div 10)) &gt; 0.001 and ($ppos/@left mod ($rounding div 10)) &lt; (($rounding div 10) - 0.001)">
+      <xsl:message>
+	Unrounded left <xsl:value-of select="$ppos/@left"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@left mod ($rounding div 10)"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+      </xsl:message>
+    </xsl:if>
+    <xsl:if test="($ppos/@top mod ($rounding div 10)) &gt; 0.001 and ($ppos/@top mod ($rounding div 10)) &lt; (($rounding div 10) - 0.001)">
+      <xsl:message>
+	Unrounded top <xsl:value-of select="$ppos/@top"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@top mod ($rounding div 10)"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+      </xsl:message>
+    </xsl:if>
+    <xsl:if test="($ppos/@width mod $rounding) &gt; 0.001 and ($ppos/@width mod $rounding) &lt; ($rounding - 0.001)">
+      <xsl:message>
+	Unrounded width <xsl:value-of select="$ppos/@width"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@width mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+      </xsl:message>
+    </xsl:if>
+    <xsl:if test="($ppos/@height mod $rounding) &gt; 0.001 and ($ppos/@height mod $rounding) &lt; ($rounding - 0.001)">
+      <xsl:message>
+	Unrounded height <xsl:value-of select="$ppos/@height"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@height mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+      </xsl:message>
+    </xsl:if>
     <script>
       i = document.getElementById('<xsl:value-of select="$id"/>');
       imgQueue.push({
-        fn: "<xsl:value-of select="concat($imageDir,'/',@filename)"/>",
+        fn: "<xsl:value-of select="concat($imageDir,'/',$fn)"/>",
 	dst: i,
 	divw: i.parentNode.offsetWidth,
 	divh: i.parentNode.offsetHeight,
-	top: <xsl:value-of select="@top"/>,
-	left: <xsl:value-of select="@left"/>,
-	areaw: <xsl:value-of select="../@width"/>,
-	areah: <xsl:value-of select="../@height"/>,
-	scale: <xsl:value-of select="@scale"/>
+	top: <xsl:value-of select="$cutoutTop"/>,
+	left: <xsl:value-of select="$cutoutLeft"/>,
+	areaw: <xsl:value-of select="$ppos/@width"/>,
+	areah: <xsl:value-of select="$ppos/@height"/>,
+	scale: <xsl:value-of select="$scale"/>
       });
     </script>
   </xsl:template>
