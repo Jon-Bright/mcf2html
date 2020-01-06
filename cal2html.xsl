@@ -56,9 +56,14 @@
     </colors>
   </xsl:variable>
   <xsl:key name="colorsByCode" match="color" use="string(@key)"/>
-  
-  <xsl:variable name="pageWidth" select="number(*/page[@pagenr='0']/bundlesize/@width) div 10"/>
-  <xsl:variable name="pageHeight" select="number(*/page[@pagenr='0']/bundlesize/@height) div 10"/>
+
+  <!-- Calendars are the same size on every page, but photobooks have a different first page because
+       of the spine.  They also have multiple pagenr=0 entries.  afaict, everything only has a single
+       pagenr=1 -->
+  <xsl:variable name="page0Width" select="number(*/page[@pagenr='0'][@type='fullcover' or @type='calendarcoverfront'][1]/bundlesize/@width) div 10"/>
+  <xsl:variable name="page0Height" select="number(*/page[@pagenr='0'][@type='fullcover' or @type='calendarcoverfront'][1]/bundlesize/@height) div 10"/>
+  <xsl:variable name="pageWidth" select="number(*/page[@pagenr='1']/bundlesize/@width) div 10"/>
+  <xsl:variable name="pageHeight" select="number(*/page[@pagenr='1']/bundlesize/@height) div 10"/>
   <xsl:variable name="imageDir" select="fotobook/@imagedir"/>
 
   <xsl:function name="x:dayOfWeek">
@@ -93,6 +98,10 @@
 	  @page {
 	  }
           @media print {
+            @page :first {
+              margin: 0;
+	      size: <xsl:value-of select="$page0Width"/>mm <xsl:value-of select="$page0Height"/>mm;
+            }
             @page {
               margin: 0;
 	      size: <xsl:value-of select="$pageWidth"/>mm <xsl:value-of select="$pageHeight"/>mm;
