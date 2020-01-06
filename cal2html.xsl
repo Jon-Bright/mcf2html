@@ -123,6 +123,17 @@
 	    line-height:0;
 	    font-size:48pt;
 	  }
+	  span.spinelogo {
+	    background-color: red;
+	    position:absolute;
+	    width:100%;
+	    height:100%;
+	  }
+	  div.misc {
+	    position:absolute;
+	    display:block;
+	    text-align:center;
+	  }
 	  div.pic {
 	    position:absolute;
 	    display:block;
@@ -210,21 +221,64 @@ window.onload = function() {
 
   <xsl:template match="area">
     <xsl:element name="div">
-      <xsl:if test="image">
-	<xsl:attribute name="class">pic</xsl:attribute>
-      </xsl:if>
-      <xsl:if test="calendararea">
-	<xsl:attribute name="class">cal</xsl:attribute>
-      </xsl:if>
+      <xsl:choose>
+	<xsl:when test="image">
+	  <xsl:attribute name="class">pic</xsl:attribute>
+	</xsl:when>
+	<xsl:when test="calendararea">
+	  <xsl:attribute name="class">cal</xsl:attribute>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:attribute name="class">misc</xsl:attribute>
+	</xsl:otherwise>
+      </xsl:choose>
       <xsl:variable name="pos" select="position|."/>
+      <xsl:variable name="l">
+	<xsl:choose>
+	  <xsl:when test="$pos/@rotation='90' or $pos/@rotation='270'">
+	    <xsl:value-of select="(($pos/@left+($pos/@width div 2)-($pos/@height div 2)) div ../bundlesize/@width)*100"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="($pos/@left div ../bundlesize/@width)*100"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="t">
+	<xsl:choose>
+	  <xsl:when test="$pos/@rotation='90' or $pos/@rotation='270'">
+	    <xsl:value-of select="(($pos/@top+($pos/@height div 2) + $pos/@width - ($pos/@width div 2)) div ../bundlesize/@height)*100"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="($pos/@top div ../bundlesize/@height)*100"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:variable>
       <xsl:attribute name="style">
-	<xsl:text>left: </xsl:text><xsl:value-of select="(($pos/@left div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>top: </xsl:text><xsl:value-of select="(($pos/@top div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>width: </xsl:text><xsl:value-of select="(($pos/@width div 10) div $pageWidth)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>height: </xsl:text><xsl:value-of select="(($pos/@height div 10) div $pageHeight)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>left: </xsl:text><xsl:value-of select="$l"/><xsl:text>%; </xsl:text>
+	<xsl:text>top: </xsl:text><xsl:value-of select="$t"/><xsl:text>%; </xsl:text>
+	<xsl:text>width: </xsl:text><xsl:value-of select="($pos/@width div ../bundlesize/@width)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>height: </xsl:text><xsl:value-of select="($pos/@height div ../bundlesize/@height)*100"/><xsl:text>%; </xsl:text>
+	<xsl:if test="$pos/@rotation='270'">
+	  <xsl:text>transform-origin: 0 0; transform: rotate(270deg);</xsl:text>
+	</xsl:if>
+	<xsl:choose>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNLEADING')">
+	    <xsl:text>text-align: left;</xsl:text>
+	  </xsl:when>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNHCENTER')">
+	    <xsl:text>text-align: center;</xsl:text>
+	  </xsl:when>
+	</xsl:choose>
       </xsl:attribute>
+      <xsl:if test="@areatype='spinelogoarea'">
+	<xsl:element name="span">
+	  <xsl:attribute name="class">spinelogo</xsl:attribute>
+	  <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+	</xsl:element>
+      </xsl:if>
       <xsl:apply-templates select="image"/>
       <xsl:apply-templates select="calendararea"/>
+      <xsl:apply-templates select="text"/>
     </xsl:element>
   </xsl:template>
 
@@ -302,6 +356,15 @@ window.onload = function() {
 	scale: <xsl:value-of select="$scale"/>
       });
     </script>
+  </xsl:template>
+
+  <xsl:template match="text">
+    <xsl:element name="span">
+      <xsl:attribute name="style">
+	<xsl:value-of select="replace(string(), '.*body style=&quot;([^&quot;]*)&quot;.*', '$1')"/>
+      </xsl:attribute>
+      <xsl:value-of disable-output-escaping="yes" select="replace(string(), '.*(&lt;span[^&lt;]*&lt;/span&gt;).*', '$1')"/>
+    </xsl:element>
   </xsl:template>
 
   <xsl:template match="calendararea[@layoutschema='Year (Long-Name-Big)']">
