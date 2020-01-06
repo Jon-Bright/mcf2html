@@ -1,23 +1,23 @@
-# cal2html
+# mcf2html
 
 An XSLT script to convert Cewe's MCF files to HTML, so that a browser can be used to produce a decent preview PDF.  (Cewe also produces the software for Amazon, dm, Müller, Rossmann, Budni, Edeka, Saturn, Kaufland, real, Otto and many more.)
 
 ## Prerequisites
 
-* A browser.  The process_cal.sh script assumes Google Chrome.
-* An XSLT 2.0 processor.  The process_cal.sh assumes Saxon (package libsaxonb-java on Debian).
+* A browser.  The process_mcf.sh script assumes Google Chrome.
+* An XSLT 2.0 processor.  The process_mcf.sh assumes Saxon (package libsaxonb-java on Debian).
 
 ## Usage
 
 ```
-./process_cal.sh /path/to/calendar.mcf
+./process_mcf.sh /path/to/your.mcf
 ```
 
-The script will process the MCF file to HTML, then start Chrome.  All images in the calendar will initially appear as broken image links, but will fill as the browser processes them.  Once processing is done, the print dialog will open.
+The script will process the MCF file to HTML, then start Chrome.  All images in the calendar or photobook will initially appear as broken image links, but will fill as the browser processes them.  Once processing is done, the print dialog will open.
 
 ## Weaknesses
 
-* I made this to process *my* calendars.  It doesn't support Z order, any type of calendar that's not the one I use, background colours and doubtless 18 other features.  It doesn't support photo books.  All of these things are possible, none of them are implemented.
+* I made this to process *my* calendars and photobooks.  It doesn't support Z order, is missing support for large numbers of calendarium types and doubtless 18 other features.  Complete support should be possible, but what's implemented is just what I needed.
 
 * In the browser window, the output does not look good.  The print version is fine.  People who are better than me at CSS could probably fix this.
 

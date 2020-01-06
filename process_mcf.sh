@@ -1,13 +1,13 @@
 #!/bin/bash
 if [ $# -ne 1 ]; then
-  echo "Usage: process_cal.sh <path_to_mcf>"
+  echo "Usage: process_mcf.sh <path_to_mcf>"
   exit
 fi
-XSL_DIR="${0/process_cal.sh/}"
+XSL_DIR="${0/process_mcf.sh/}"
 MCF=$1
 HTML=${MCF/.mcf/.html}
 echo "Processing ${MCF} to ${HTML}..."
-saxonb-xslt -s:${MCF} -xsl:${XSL_DIR}cal2html.xsl -o:${HTML}
+saxonb-xslt -s:${MCF} -xsl:${XSL_DIR}mcf2html.xsl -o:${HTML}
 if [ $? -ne 0 ]; then
   echo "Failed XSL processing, stopping."
   exit
