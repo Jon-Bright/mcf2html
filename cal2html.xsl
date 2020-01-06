@@ -107,7 +107,7 @@
 	      size: <xsl:value-of select="$pageWidth"/>mm <xsl:value-of select="$pageHeight"/>mm;
 	    }
 	    body {
-	      margin: 1.6cm;
+	      margin: 0;
 	    }
 	  }
 	  div.page {
