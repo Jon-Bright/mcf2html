@@ -109,6 +109,7 @@
 	    }
 	    body {
 	      margin: 0;
+	      -webkit-print-color-adjust: exact;
 	    }
 	  }
 	  @media screen {
