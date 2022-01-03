@@ -110,6 +110,13 @@
 	      margin: 0;
 	    }
 	  }
+	  @media screen {
+	    body {
+	      margin: 0;
+	      width: <xsl:value-of select="$pageWidth"/>mm;
+	      height: <xsl:value-of select="$pageHeight"/>mm;
+	    }
+	  }
 	  div.page {
 	    position:relative;
 	    page-break-after: always;
