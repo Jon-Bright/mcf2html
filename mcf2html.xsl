@@ -389,6 +389,19 @@ window.onload = function() {
              1. Extracts just the body style (which contains the font).
 	     2. Changes references to CEWE's own "CEWE Head" font to specify sans-serif as a fallback. -->
 	<xsl:value-of select="replace(replace(string(), '.*body style=&quot;([^&quot;]*)&quot;.*', '$1'),'''CEWE Head''','''CEWE Head'',sans-serif')"/>
+	<xsl:text>position:absolute;</xsl:text>
+	<xsl:if test="contains(textFormat/@Alignment,'ALIGNLEADING')">
+	  <xsl:text>left:0;</xsl:text>
+	</xsl:if>
+	<xsl:if test="contains(textFormat/@Alignment,'ALIGNRIGHT')">
+	  <xsl:text>right:0;</xsl:text>
+	</xsl:if>
+	<xsl:if test="contains(textFormat/@Alignment,'ALIGNTOP')">
+	  <xsl:text>top:0;</xsl:text>
+	</xsl:if>
+	<xsl:if test="contains(textFormat/@Alignment,'ALIGNBOTTOM')">
+	  <xsl:text>bottom:0;</xsl:text>
+	</xsl:if>
       </xsl:attribute>
       <xsl:value-of disable-output-escaping="yes" select="replace(string(), '.*(&lt;span[^&lt;]*&lt;/span&gt;).*', '$1')"/>
     </xsl:element>
