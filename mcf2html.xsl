@@ -276,6 +276,20 @@ window.onload = function() {
 	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNHCENTER')">
 	    <xsl:text>text-align: center;</xsl:text>
 	  </xsl:when>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNTRAILING')">
+	    <xsl:text>text-align: right;</xsl:text>
+	  </xsl:when>
+	</xsl:choose>
+	<xsl:choose>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNTOP')">
+	    <xsl:text>vertical-align: top;</xsl:text>
+	  </xsl:when>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNVCENTER')">
+	    <xsl:text>vertical-align: middle;</xsl:text>
+	  </xsl:when>
+	  <xsl:when test="contains(text/textFormat/@Alignment,'ALIGNBOTTOM')">
+	    <xsl:text>vertical-align: bottom;</xsl:text>
+	  </xsl:when>
 	</xsl:choose>
       </xsl:attribute>
       <xsl:if test="@areatype='spinelogoarea'">
