@@ -19,7 +19,7 @@ The script will process the MCF file to HTML, then start Chrome.  All images in 
 
 * I made this to process *my* calendars and photobooks.  It doesn't support Z order, is missing support for large numbers of calendarium types and doubtless 18 other features.  Complete support should be possible, but what's implemented is just what I needed.
 
-* In the browser window, the output does not look good.  The print version is fine.  People who are better than me at CSS could probably fix this.
+* The size of the PDF is dependent on the pixel dimensions of the images in the browser.  This is, in turn, dependent on the display resolution and the display CSS.
 
 ## Disclaimer
 

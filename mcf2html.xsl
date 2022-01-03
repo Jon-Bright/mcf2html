@@ -115,8 +115,8 @@
 	  @media screen {
 	    body {
 	      margin: 0;
-	      width: <xsl:value-of select="$pageWidth"/>mm;
-	      height: <xsl:value-of select="$pageHeight"/>mm;
+	      width: <xsl:value-of select="$pageWidth * 0.6"/>mm;
+	      height: <xsl:value-of select="$pageHeight * 0.6"/>mm;
 	    }
 	  }
 	  div.page {
