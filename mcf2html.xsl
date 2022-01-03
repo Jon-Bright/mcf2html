@@ -46,6 +46,7 @@
   <xsl:variable name="fonts">
     <fonts>
       <font key="FranklinGothic" css="Franklin Gothic Medium,Franklin Gothic,ITC Franklin Gothic,Arial,sans-serif"/>
+      <font key="CEWE Head" css="CEWE Head,Arial,sans-serif"/>
     </fonts>
   </xsl:variable>
   <xsl:key name="fontCSSByCode" match="font" use="string(@key)"/>
@@ -368,7 +369,11 @@ window.onload = function() {
   <xsl:template match="text">
     <xsl:element name="span">
       <xsl:attribute name="style">
-	<xsl:value-of select="replace(string(), '.*body style=&quot;([^&quot;]*)&quot;.*', '$1')"/>
+	<!-- The text fields are complete embedded HTML documents, which seemed like a PITA to deal with.
+             This hack avoids doing that, but does do two things:
+             1. Extracts just the body style (which contains the font).
+	     2. Changes references to CEWE's own "CEWE Head" font to specify sans-serif as a fallback. -->
+	<xsl:value-of select="replace(replace(string(), '.*body style=&quot;([^&quot;]*)&quot;.*', '$1'),'''CEWE Head''','''CEWE Head'',sans-serif')"/>
       </xsl:attribute>
       <xsl:value-of disable-output-escaping="yes" select="replace(string(), '.*(&lt;span[^&lt;]*&lt;/span&gt;).*', '$1')"/>
     </xsl:element>
