@@ -6,7 +6,7 @@
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
-  <xsl:variable name="rounding" select="50"/>
+  <xsl:variable name="rounding" select="53"/>
   <!-- I use a 5mm grid and want all my photos snapped to it. Based on the value here, the XSL
        will output warning messages for photos where that's not the case. -->
 
@@ -67,6 +67,12 @@
   <xsl:variable name="pageHeight" select="number(*/page[@pagenr='1']/bundlesize/@height) div 10"/>
   <xsl:variable name="imageDir" select="fotobook/@imagedir"/>
 
+  <!-- When using a grid, pages are rooted in the centre.  This means there's always an even number
+       of grid-sized blocks and a non-grid-sized block at the edges. Calculate the size of that block
+       for left/right and top/bottom. -->
+  <xsl:variable name="marginLR" select="(($pageWidth * 10) mod $rounding) div 2"/>
+  <xsl:variable name="marginTB" select="(($pageHeight * 10) mod $rounding) div 2"/>
+
   <xsl:function name="x:dayOfWeek">
     <xsl:param name="y" />
     <xsl:param name="m" /> <!-- 1 <= m <= 12 -->
@@ -92,6 +98,14 @@
   </xsl:function>
   
   <xsl:template match="/fotobook">
+    <xsl:message>
+      page0Width <xsl:value-of select="$page0Width"/>
+      page0Height <xsl:value-of select="$page0Height"/>
+      pageWidth <xsl:value-of select="$pageWidth"/>
+      pageHeight <xsl:value-of select="$pageHeight"/>
+      marginLR <xsl:value-of select="$marginLR"/>
+      marginTB <xsl:value-of select="$marginTB"/>
+    </xsl:message>
     <html>
       <head>
 	<title>Calendar</title>
@@ -345,25 +359,27 @@ window.onload = function() {
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:if test="($ppos/@left mod ($rounding div 10)) &gt; 0.001 and ($ppos/@left mod ($rounding div 10)) &lt; (($rounding div 10) - 0.001)">
-      <xsl:message>
-	Unrounded left <xsl:value-of select="$ppos/@left"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@left mod ($rounding div 10)"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
-      </xsl:message>
-    </xsl:if>
-    <xsl:if test="($ppos/@top mod ($rounding div 10)) &gt; 0.001 and ($ppos/@top mod ($rounding div 10)) &lt; (($rounding div 10) - 0.001)">
-      <xsl:message>
-	Unrounded top <xsl:value-of select="$ppos/@top"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@top mod ($rounding div 10)"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
-      </xsl:message>
-    </xsl:if>
-    <xsl:if test="($ppos/@width mod $rounding) &gt; 0.001 and ($ppos/@width mod $rounding) &lt; ($rounding - 0.001)">
-      <xsl:message>
-	Unrounded width <xsl:value-of select="$ppos/@width"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@width mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
-      </xsl:message>
-    </xsl:if>
-    <xsl:if test="($ppos/@height mod $rounding) &gt; 0.001 and ($ppos/@height mod $rounding) &lt; ($rounding - 0.001)">
-      <xsl:message>
-	Unrounded height <xsl:value-of select="$ppos/@height"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@height mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
-      </xsl:message>
+    <xsl:if test="$rounding &gt; 0">
+      <xsl:if test="(($ppos/@left - $marginLR) mod $rounding) &gt; 0.001 and (($ppos/@left - $marginLR) mod $rounding) &lt; ($rounding - 0.001)">
+	<xsl:message>
+	  Unrounded left <xsl:value-of select="$ppos/@left"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="($ppos/@left - $marginLR) mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+	</xsl:message>
+      </xsl:if>
+      <xsl:if test="(($ppos/@top - $marginTB) mod $rounding) &gt; 0.001 and (($ppos/@top - $marginTB) mod $rounding) &lt; ($rounding - 0.001)">
+	<xsl:message>
+	  Unrounded top <xsl:value-of select="$ppos/@top"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="($ppos/@top - $marginTB) mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+	</xsl:message>
+      </xsl:if>
+      <xsl:if test="($ppos/@width mod $rounding) &gt; 0.001 and ($ppos/@width mod $rounding) &lt; ($rounding - 0.001)">
+	<xsl:message>
+	  Unrounded width <xsl:value-of select="$ppos/@width"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@width mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+	</xsl:message>
+      </xsl:if>
+      <xsl:if test="($ppos/@height mod $rounding) &gt; 0.001 and ($ppos/@height mod $rounding) &lt; ($rounding - 0.001)">
+	<xsl:message>
+	  Unrounded height <xsl:value-of select="$ppos/@height"/> for <xsl:value-of select="$fn"/>, remainder <xsl:value-of select="$ppos/@height mod $rounding"/> on page <xsl:value-of select="ancestor::page/@pagenr"/>
+	</xsl:message>
+      </xsl:if>
     </xsl:if>
     <script>
       i = document.getElementById('<xsl:value-of select="$id"/>');
