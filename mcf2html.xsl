@@ -464,6 +464,43 @@ window.onload = function() {
     </span>
   </xsl:template>
   
+  <xsl:template match="calendararea[@layoutschema='OneRow (gerry_04)']">
+    <xsl:variable name="month" select="../../@pagenr"/>
+    <xsl:variable name="numDays" select="key('monthByNumber', string($month), $months)"/>
+    <xsl:variable name="dayWidth" select="100 div number($numDays)"/>
+    <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
+    <span class="cal-onerow">
+      <table width="100%">
+	<tr>
+	  <xsl:for-each select="1 to $numDays">
+	    <xsl:element name="td">
+	      <xsl:variable name="dow" select="x:dayOfWeek($year, $month, position())"/>
+	      <xsl:attribute name="class">daybox</xsl:attribute>
+	      <xsl:attribute name="width"><xsl:value-of select="$dayWidth"/>%</xsl:attribute>
+	      <xsl:element name="span">
+		<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18; font-weight: normal;
+		<xsl:if test="$dow=0 or $dow=6">font-style: italic;</xsl:if>
+		</xsl:attribute>
+		<xsl:choose>
+		  <xsl:when test="$dow=0">
+		    <xsl:element name="b">
+		      <xsl:value-of select="key('dayByNumber', string($dow), $days)/@name"/>
+		    </xsl:element>
+		  </xsl:when>
+		  <xsl:otherwise>
+		    <xsl:value-of select="key('dayByNumber', string($dow), $days)/@name"/>
+		  </xsl:otherwise>
+		</xsl:choose>
+		<br />
+		<xsl:value-of select="position()"/>
+	      </xsl:element>
+	    </xsl:element>
+	  </xsl:for-each>
+	</tr>
+      </table>
+    </span>
+  </xsl:template>
+  
   <xsl:template match="calendararea[@layoutschema='Month']">
     <xsl:variable name="month" select="../../@pagenr"/>
     <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
