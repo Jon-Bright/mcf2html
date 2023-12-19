@@ -204,6 +204,13 @@
 	    text-align:center;
 	    height: 3em;
 	  }
+	  td.daybox-gerry04 {
+	    border-left:1px solid #e1e1e1;
+	    border-right:1px solid #e1e1e1;
+	    text-align:center;
+	    height: 2em;
+	    padding: 0;
+	  }
 	  span.cal-per-row {
 	    position:absolute;
 	    width:100%;
@@ -502,17 +509,26 @@ window.onload = function() {
     <xsl:variable name="numDays" select="key('monthByNumber', string($month), $months)"/>
     <xsl:variable name="dayWidth" select="100 div number($numDays)"/>
     <xsl:variable name="font" select="key('fontCSSByCode', string(@font), $fonts)/@css"/>
+    <xsl:variable name="colPri" select="key('colorsByCode', string(@colorschema), $colors)/@pri"/>
+    <xsl:variable name="colSec" select="key('colorsByCode', string(@colorschema), $colors)/@sec"/>
+    <xsl:variable name="colTer" select="key('colorsByCode', string(@colorschema), $colors)/@ter"/>
+    <xsl:variable name="colQua" select="key('colorsByCode', string(@colorschema), $colors)/@qua"/>
     <span class="cal-onerow">
-      <table width="100%">
+      <table width="100%" style="border-collapse: collapse;">
 	<tr>
 	  <xsl:for-each select="1 to $numDays">
 	    <xsl:element name="td">
 	      <xsl:variable name="dow" select="x:dayOfWeek($year, $month, position())"/>
-	      <xsl:attribute name="class">daybox</xsl:attribute>
+	      <xsl:attribute name="class">daybox-gerry04</xsl:attribute>
 	      <xsl:attribute name="width"><xsl:value-of select="$dayWidth"/>%</xsl:attribute>
+	      <xsl:attribute name="style">background: <xsl:value-of select="$colQua"/>;</xsl:attribute>
 	      <xsl:element name="span">
-		<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18; font-weight: normal;
-		<xsl:if test="$dow=0 or $dow=6">font-style: italic;</xsl:if>
+		<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18;
+		<xsl:choose>
+		  <xsl:when test="$dow=0">font-weight: bold; font-style: italic; color:<xsl:value-of select="$colSec"/>;</xsl:when>
+		  <xsl:when test="$dow=6">font-weight: normal; font-style: italic; color:<xsl:value-of select="$colSec"/>;</xsl:when>
+		  <xsl:otherwise>font-weight: normal; color:<xsl:value-of select="$colSec"/>;</xsl:otherwise>
+		</xsl:choose>
 		</xsl:attribute>
 		<xsl:choose>
 		  <xsl:when test="$dow=0">
@@ -524,7 +540,26 @@ window.onload = function() {
 		    <xsl:value-of select="key('dayByNumber', string($dow), $days)/@name"/>
 		  </xsl:otherwise>
 		</xsl:choose>
-		<br />
+	      </xsl:element>
+	    </xsl:element>
+	  </xsl:for-each>
+	</tr>
+	<tr>
+	  <xsl:for-each select="1 to $numDays">
+	    <xsl:element name="td">
+	      <xsl:variable name="dow" select="x:dayOfWeek($year, $month, position())"/>
+	      <xsl:attribute name="class">daybox-gerry04</xsl:attribute>
+	      <xsl:attribute name="style">
+		<xsl:if test="$dow=0 or $dow=6">background:<xsl:value-of select="$colTer"/>;</xsl:if>
+	      </xsl:attribute>
+	      <xsl:element name="span">
+		<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size: 18;
+		<xsl:choose>
+		  <xsl:when test="$dow=0">font-style: italic; color:<xsl:value-of select="$colSec"/>;</xsl:when>
+		  <xsl:when test="$dow=6">font-style: italic; color:<xsl:value-of select="$colSec"/>;</xsl:when>
+		  <xsl:otherwise>color:<xsl:value-of select="$colPri"/>;</xsl:otherwise>
+		</xsl:choose>
+		</xsl:attribute>
 		<xsl:value-of select="position()"/>
 	      </xsl:element>
 	    </xsl:element>
