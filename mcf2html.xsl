@@ -97,6 +97,32 @@
     </xsl:variable>
     <xsl:value-of select="($ry + floor($ry div 4) - floor($ry div 100) + floor($ry div 400) + $t + $d) mod 7"/>
   </xsl:function>
+
+  <xsl:function name="x:constrainWidth">
+    <xsl:param name="pos" /> <!-- position element -->
+    <xsl:param name="page" /> <!-- page element with a bundlesize child -->
+    <xsl:choose>
+      <xsl:when test="($pos/@left + $pos/@width) &gt; $page/bundlesize/@width">
+	<xsl:value-of select="$page/bundlesize/@width - $pos/@left"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="$pos/@width"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
+  <xsl:function name="x:constrainHeight">
+    <xsl:param name="pos" /> <!-- position element -->
+    <xsl:param name="page" /> <!-- page element with a bundlesize child -->
+    <xsl:choose>
+      <xsl:when test="($pos/@top + $pos/@height) &gt; $page/bundlesize/@height">
+	<xsl:value-of select="$page/bundlesize/@height - $pos/@top"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="$pos/@height"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
   
   <xsl:template match="/fotobook">
     <xsl:message>
@@ -280,8 +306,10 @@ window.onload = function() {
       <xsl:attribute name="style">
 	<xsl:text>left: </xsl:text><xsl:value-of select="$l"/><xsl:text>%; </xsl:text>
 	<xsl:text>top: </xsl:text><xsl:value-of select="$t"/><xsl:text>%; </xsl:text>
-	<xsl:text>width: </xsl:text><xsl:value-of select="($pos/@width div ../bundlesize/@width)*100"/><xsl:text>%; </xsl:text>
-	<xsl:text>height: </xsl:text><xsl:value-of select="($pos/@height div ../bundlesize/@height)*100"/><xsl:text>%; </xsl:text>
+	<xsl:variable name="constrainedWidth" select="x:constrainWidth($pos, ..)"/>
+	<xsl:variable name="constrainedHeight" select="x:constrainHeight($pos, ..)"/>
+	<xsl:text>width: </xsl:text><xsl:value-of select="($constrainedWidth div ../bundlesize/@width)*100"/><xsl:text>%; </xsl:text>
+	<xsl:text>height: </xsl:text><xsl:value-of select="($constrainedHeight div ../bundlesize/@height)*100"/><xsl:text>%; </xsl:text>
 	<xsl:if test="$pos/@rotation='270'">
 	  <xsl:text>transform-origin: 0 0; transform: rotate(270deg);</xsl:text>
 	</xsl:if>
@@ -382,6 +410,8 @@ window.onload = function() {
 	</xsl:message>
       </xsl:if>
     </xsl:if>
+    <xsl:variable name="constrainedWidth" select="x:constrainWidth($ppos, ../..)"/>
+    <xsl:variable name="constrainedHeight" select="x:constrainHeight($ppos, ../..)"/>
     <script>
       i = document.getElementById('<xsl:value-of select="$id"/>');
       imgQueue.push({
@@ -391,8 +421,8 @@ window.onload = function() {
 	divh: i.parentNode.offsetHeight,
 	top: <xsl:value-of select="$cutoutTop"/>,
 	left: <xsl:value-of select="$cutoutLeft"/>,
-	areaw: <xsl:value-of select="$ppos/@width"/>,
-	areah: <xsl:value-of select="$ppos/@height"/>,
+	areaw: <xsl:value-of select="$constrainedWidth"/>,
+	areah: <xsl:value-of select="$constrainedHeight"/>,
 	scale: <xsl:value-of select="$scale"/>
       });
     </script>
