@@ -7,8 +7,9 @@
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
   <xsl:variable name="rounding" select="53"/>
-  <!-- I use a 5mm grid and want all my photos snapped to it. Based on the value here, the XSL
-       will output warning messages for photos where that's not the case. -->
+  <!-- I use a 5.3mm grid and want all my photos snapped to it. Based
+       on the value here, the XSL will output warning messages for
+       photos where that's not the case. -->
 
   <xsl:variable name="year" select="number(substring(fotobook/@startdatecalendarium,7))"/>
   <xsl:variable name="daysInFeb" select="if (($year mod 4 = 0 and $year mod 100 !=0) or $year mod 400 = 0) then 29 else 28"/>
