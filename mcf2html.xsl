@@ -46,7 +46,7 @@
 
   <xsl:variable name="fonts">
     <fonts>
-      <font key="FranklinGothic" css="Franklin Gothic,ITC Franklin Gothic,Arial,sans-serif"/>
+      <font key="FranklinGothic" css="Franklin Gothic Book,ITC Franklin Gothic,Arial,sans-serif"/>
       <font key="CEWE Head" css="CEWE Head,Arial,sans-serif"/>
     </fonts>
   </xsl:variable>
