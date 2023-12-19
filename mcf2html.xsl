@@ -55,6 +55,8 @@
   <xsl:variable name="colors">
     <colors>
       <color key="Brown range of colors" pri="#fcf3e9" sec="#f6ddbe" ter="#cba65f"/>
+      <color key="new_09012019_111723" ter="#666666" />
+      <color key="Anthracite gray nuances" pri="#000000" sec="#ffffff" ter="#999797" qua="#666565"/>
     </colors>
   </xsl:variable>
   <xsl:key name="colorsByCode" match="color" use="string(@key)"/>
