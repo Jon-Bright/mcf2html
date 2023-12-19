@@ -461,7 +461,7 @@ window.onload = function() {
     <div class="year">
     <xsl:element name="span">
       <xsl:attribute name="class">year</xsl:attribute>
-      <xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:48pt; font-weight:bold;</xsl:attribute>
+      <xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:60pt; font-weight:bold;</xsl:attribute>
       <xsl:value-of select="$year" />
     </xsl:element>
     </div>
@@ -541,7 +541,7 @@ window.onload = function() {
     <span class="cal-month">
       <xsl:element name="div">
 	<xsl:attribute name="class">mName</xsl:attribute>
-	<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:36pt; font-weight:bold; color:<xsl:value-of select="$colTer"/>;</xsl:attribute>
+	<xsl:attribute name="style">font-family: <xsl:value-of select="$font"/>; font-size:48pt; font-weight:bold; color:<xsl:value-of select="$colTer"/>;</xsl:attribute>
 	<xsl:value-of select="key('monthByNumber', string($month), $months)/@name"/>
       </xsl:element>
     </span>
