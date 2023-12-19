@@ -75,9 +75,9 @@
   <xsl:variable name="marginTB" select="(($pageHeight * 10) mod $rounding) div 2"/>
 
   <xsl:function name="x:dayOfWeek">
-    <xsl:param name="y" />
+    <xsl:param name="y" /> <!-- Gregorian years only -->
     <xsl:param name="m" /> <!-- 1 <= m <= 12 -->
-    <xsl:param name="d" /> <!-- Gregorian years only -->
+    <xsl:param name="d" />
     <xsl:variable name="ry" select="if ($m &lt; 3) then $y -1 else $y"/>
     <xsl:variable name="t">
       <xsl:choose>
